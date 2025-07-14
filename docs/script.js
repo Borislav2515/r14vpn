@@ -2,9 +2,7 @@ document.getElementById('keys-btn').onclick = showKeys;
 document.getElementById('stats-btn').onclick = showStats;
 document.getElementById('support-btn').onclick = showSupport;
 
-// ВАЖНО: Укажите здесь публичный адрес вашего backend!
-// Для теста можно http, для Telegram WebApp нужен https.
-const API_BASE = window.location.protocol + "//178.250.191.242:8080";
+const API_BASE = "http://178.250.191.242/api";
 
 function showKeys() {
   document.getElementById('main-content').innerHTML = `
@@ -12,7 +10,7 @@ function showKeys() {
     <div id="keys-list">Загрузка...</div>
     <button class="primary" id="get-key-btn">Получить новый ключ</button>
   `;
-  fetch(`${API_BASE}/api/keys`)
+  fetch(`${API_BASE}/keys`)
     .then(r => r.json())
     .then(data => {
       if (data.keys && data.keys.length > 0) {
@@ -28,7 +26,7 @@ function getKey() {
   const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
   const username = tgUser?.username || `user_${tgUser?.id || 1}`;
   const user_id = tgUser?.id || 1;
-  fetch(`${API_BASE}/api/get_key`, {
+  fetch(`${API_BASE}/get_key`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, user_id })
@@ -46,7 +44,7 @@ function getKey() {
 
 function showStats() {
   document.getElementById('main-content').innerHTML = '<h2>Статистика</h2><div id="stats">Загрузка...</div>';
-  fetch(`${API_BASE}/api/stats`)
+  fetch(`${API_BASE}/stats`)
     .then(r => r.json())
     .then(data => {
       document.getElementById('stats').innerHTML = `
