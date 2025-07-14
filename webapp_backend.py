@@ -109,6 +109,34 @@ def api_stats():
                 active_keys += 1
     return jsonify({'traffic': round(total_traffic / 1024 / 1024, 2), 'active_keys': active_keys})
 
+@app.route('/api/delete_key', methods=['POST'])
+def api_delete_key():
+    data = request.get_json()
+    user_id = data.get('user_id', 1)
+    key_name = data.get('key_name')
+    
+    if not key_name:
+        return jsonify({'success': False, 'error': 'key_name required'})
+    
+    # Находим ключ по имени и удаляем его
+    keys = get_keys(user_id)
+    for server in OUTLINE_SERVERS:
+        if server['name'] == key_name:
+            # Удаляем ключ из Outline
+            from outline_api import delete_access_key
+            real_keys = get_access_keys(server['api_url'])
+            if real_keys:
+                for key in real_keys:
+                    if key.get('name') == key_name or f'user_{user_id}' in key.get('name', ''):
+                        delete_result = delete_access_key(server['api_url'], key['id'])
+                        if delete_result:
+                            # Удаляем из базы данных
+                            from db import delete_key
+                            delete_key(user_id, server['id'], key['id'])
+                            return jsonify({'success': True})
+    
+    return jsonify({'success': False, 'error': 'key not found'})
+
 def parse_user_id(init_data):
     # В реальном проекте нужно парсить и проверять подпись initData!
     # Здесь для теста просто ищем user.id

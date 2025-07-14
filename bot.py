@@ -34,7 +34,7 @@ gen_key_kb_germany = InlineKeyboardMarkup(inline_keyboard=[
 ])
 
 # Кнопка для WebApp
-webapp_url = "https://borislav2515.github.io/r14vpn/"
+webapp_url = "http://178.250.191.242/"
 webapp_kb = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="Открыть VPN WebApp", web_app=WebAppInfo(url=webapp_url))]
 ])

@@ -66,4 +66,12 @@ def mark_key_deleted(key_id):
     c = conn.cursor()
     c.execute('UPDATE keys SET expires_at = NULL WHERE id = ?', (key_id,))
     conn.commit()
+    conn.close()
+
+def delete_key(user_id: int, server_id: str, access_key_id: str):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute('DELETE FROM keys WHERE user_id = ? AND server_id = ? AND access_key_id = ?', 
+              (user_id, server_id, access_key_id))
+    conn.commit()
     conn.close() 
