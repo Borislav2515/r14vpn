@@ -2,7 +2,10 @@ document.getElementById('keys-btn').onclick = showKeys;
 document.getElementById('stats-btn').onclick = showStats;
 document.getElementById('support-btn').onclick = showSupport;
 
-const API_BASE = "http://localhost:8080";
+// ВАЖНО: Укажите здесь публичный HTTPS-адрес вашего backend!
+// Например:
+// const API_BASE = "https://your-backend.example.com";
+const API_BASE = "https://your-backend.example.com";
 
 function showKeys() {
   document.getElementById('main-content').innerHTML = `
