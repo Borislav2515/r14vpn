@@ -2,7 +2,7 @@ document.getElementById('keys-btn').onclick = showKeys;
 document.getElementById('stats-btn').onclick = showStats;
 document.getElementById('support-btn').onclick = showSupport;
 
-const API_BASE = "http://178.250.191.242";
+const API_BASE = "http://178.250.191.242/api";
 
 function showKeys() {
   document.getElementById('main-content').innerHTML = `
