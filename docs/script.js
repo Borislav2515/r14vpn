@@ -2,10 +2,9 @@ document.getElementById('keys-btn').onclick = showKeys;
 document.getElementById('stats-btn').onclick = showStats;
 document.getElementById('support-btn').onclick = showSupport;
 
-// ВАЖНО: Укажите здесь публичный HTTPS-адрес вашего backend!
-// Например:
-// const API_BASE = "https://your-backend.example.com";
-const API_BASE = "https://your-backend.example.com";
+// ВАЖНО: Укажите здесь публичный адрес вашего backend!
+// Для теста можно http, для Telegram WebApp нужен https.
+const API_BASE = window.location.protocol + "//178.250.191.242:8080";
 
 function showKeys() {
   document.getElementById('main-content').innerHTML = `
