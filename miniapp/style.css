@@ -1,0 +1,9 @@
+body { font-family: sans-serif; margin: 0; background: #f5f5f5; }
+header { background: #0088cc; color: #fff; padding: 16px; text-align: center; }
+.bottom-menu { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; display: flex; border-top: 1px solid #ccc; }
+.bottom-menu button { flex: 1; padding: 16px; border: none; background: none; font-size: 16px; cursor: pointer; }
+.bottom-menu button:active { background: #e0e0e0; }
+main { padding: 24px; margin-bottom: 60px; }
+.card { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 16px; padding: 16px; }
+button.primary { background: #0088cc; color: #fff; border-radius: 6px; padding: 10px 20px; border: none; margin-top: 10px; cursor: pointer; }
+button.primary:active { background: #006fa1; } 
