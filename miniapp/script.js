@@ -43,36 +43,45 @@ function renderTrafficOrEmpty(keys) {
           </div>
         </div>
       </div>
-      <h2>Ваши ключи</h2>
-      <div id="keys-list">Загрузка...</div>
-      <button class="primary" id="get-key-btn">
-        <span>🔑 Получить новый ключ</span>
-      </button>
+      <section class="keys-section">
+        <div class="card-header">
+          <h2 class="keys-title">Активные ключи</h2>
+        </div>
+        <div class="keys-list" id="keys-list">Загрузка...</div>
+      </section>
+     
     `;
     // Отрисовываем список ключей
     const keysList = document.getElementById('keys-list');
+
     if (keys && keys.length > 0) {
       keysList.innerHTML = keys.map(k => `
-        <div class="card key-card">
+        <div class="key-item">
           <div class="key-info">
-            <div class="key-name">${k.name}</div>
-            <div class="key-url">
-              <a href="${k.accessUrl}" target="_blank" onclick="copyToClipboard('${k.accessUrl}')">
-                ${k.accessUrl}
-              </a>
+            <div class="key-server">
+              <span> 🇩🇪 ${k.name}</span>
             </div>
-            <div style="font-size: 11px; color: #999; margin-top: 8px;">
-              Истекает: ${k.expiresAt}
+            <div class="key-status">
+              <div class="status-indicator status-connected"></div>
+              <span>Активен</span>
             </div>
-            <div class="btn-wrap">
-              <button class="delete-btn" onclick="deleteKey('${k.name}')">Удалить</button>
-            </div>
+          </div>
+          <div class="key-expires">
+            <span>Истекает: ${k.expiresAt}</span>
+            <button class="key-btn-delete" onclick="deleteKey('${k.id}')"> удалить </button>
           </div>
         </div>
       `).join('');
     } else {
-      keysList.innerHTML = '<div class="empty-state">У вас пока нет ключей</div>';
+      keysList.innerHTML = `
+        <div class="no-keys">
+          <div style="font-size: 48px;">🔑</div>
+          <h4>Нет активных ключей</h4>
+          <p>Купите ключ для любого сервера выше</p>
+        </div>
+      `;
     }
+    
     // Кнопка создания ключа
     const btn = document.getElementById('get-key-btn');
     if (btn) btn.onclick = getKey;
@@ -90,6 +99,7 @@ function renderTrafficOrEmpty(keys) {
         </div>
       </div>
     `;
+    // Кнопка создания ключа
     const emptyBtn = document.querySelector('.empty__state__btn');
     if (emptyBtn) emptyBtn.onclick = getKey;
   }
@@ -114,19 +124,16 @@ function showKeys() {
 }
 
 // Функция для создания нового ключа
-function getKey(e) {
-  // Получаем кнопку, с которой вызвана функция
-  const btn = e?.target || document.getElementById('get-key-btn') || document.querySelector('.empty__state__btn');
-  if (!btn) return;
-
+function getKey() {
   const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
   const username = tgUser?.username || `user_${tgUser?.id || 1}`;
   const user_id = tgUser?.id || 1;
-
+  
+  const btn = document.getElementById('get-key-btn');
   const originalText = btn.innerHTML;
   btn.innerHTML = '<span>⏳ Создание...</span>';
   btn.disabled = true;
-
+  
   fetch(`${API_BASE}/get_key`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -136,7 +143,7 @@ function getKey(e) {
     .then(data => {
       if (data.key) {
         showNotification('Ключ успешно создан!', 'success');
-        showKeys(); // сразу обновляем список ключей
+        showKeys();
       } else {
         showNotification('Ошибка при создании ключа', 'error');
       }
@@ -224,7 +231,7 @@ function showStats() {
           </div>
         </div>
         <div class="card">
-          <div style="text-align: center; color: #666; font-size: 14px;">
+          <div style="text-align: center; color: #fff; font-size: 14px;">
             📊 Статистика использования VPN
           </div>
         </div>
@@ -244,8 +251,8 @@ function showSupport() {
     <h2>Поддержка</h2>
     <div class="card support-card">
       <div style="font-size: 48px; margin-bottom: 16px;">💬</div>
-      <div style="font-size: 16px; margin-bottom: 12px; font-weight: 600;">Нужна помощь?</div>
-      <div style="color: #666; margin-bottom: 20px;">
+      <div style="font-size: 16px; color: #fff; margin-bottom: 12px; font-weight: 600;">Нужна помощь?</div>
+      <div style="color: #fff; margin-bottom: 20px;">
         По всем вопросам обращайтесь к нашей команде поддержки
       </div>
       <a href="mailto:support@example.com" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 500;">
@@ -299,9 +306,9 @@ function showNotification(message, type = 'info') {
 
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
-  // По умолчанию показываем ключи и активируем вкладку 'Ключи'
+  // Показываем ключи по умолчанию
   showKeys();
-  updateActiveNav('keys-btn');
+  
   // Добавляем обработчик для копирования ссылок по клику
   document.addEventListener('click', function(e) {
     if (e.target.tagName === 'A' && e.target.href.includes('ss://')) {
