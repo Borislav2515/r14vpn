@@ -20,7 +20,7 @@ def get_access_keys(api_url: str) -> Optional[list]:
         return resp.json().get('accessKeys', [])
     except Exception as e:
         print(f"Ошибка при получении ключей: {e}")
-        return None
+        return None 
 
 def delete_access_key(api_url: str, access_key_id: str) -> bool:
     """Удалить ключ доступа через Outline Manager API."""

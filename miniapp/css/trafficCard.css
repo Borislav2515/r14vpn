@@ -1,0 +1,41 @@
+.traffic__inner {
+    width: 100%;
+}
+
+.traffic__card {
+    border-radius: 16px;
+    width: 100%;
+    background: var(--primary-color);
+    padding: 1.5rem;
+    color: white;
+    min-height: 180px;
+}
+
+.empty__state {
+    text-align: center;
+    margin: auto;
+}
+
+.empty__state__title {
+    font-size: 1.2rem;
+    margin: 0.5rem 0;
+}
+
+.empty__state__text {
+    opacity: 0.8;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+}
+
+.empty__state__btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+.empty__state__btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}

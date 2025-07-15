@@ -19,7 +19,6 @@ main_kb = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="Что такое Outline VPN?", callback_data="about")],
     [InlineKeyboardButton(text="Выбрать сервер", callback_data="choose_server")],
     [InlineKeyboardButton(text="Мои ключи", callback_data="my_keys")],
-    [InlineKeyboardButton(text="Открыть VPN WebApp", web_app=WebAppInfo(url="https://r14-vpn.ru/"))],
 ])
 
 # Создаем стабильные клавиатуры для серверов
@@ -35,7 +34,7 @@ gen_key_kb_germany = InlineKeyboardMarkup(inline_keyboard=[
 ])
 
 # Кнопка для WebApp
-webapp_url = "https://r14-vpn.ru/"
+webapp_url = "http://178.250.191.242/"
 webapp_kb = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="Открыть VPN WebApp", web_app=WebAppInfo(url=webapp_url))]
 ])
@@ -56,7 +55,10 @@ async def start(message: types.Message):
         "Привет! Я помогу тебе получить доступ к VPN через Outline. Выбери действие:",
         reply_markup=main_kb
     )
-    # Удалено отдельное сообщение с webapp_kb
+    await message.answer(
+        "Или открой мини-приложение для управления ключами:",
+        reply_markup=webapp_kb
+    )
 
 # Обработчик команды /keys
 @dp.message(lambda message: message.text == "/keys")

@@ -9,6 +9,10 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
+@app.route('/')
+def index():
+    return send_from_directory(os.path.join(os.path.dirname(__file__), 'miniapp'), 'index.html')
+
 @app.route('/webapp')
 def webapp():
     return send_from_directory(os.path.dirname(__file__), 'webapp.html')
@@ -136,6 +140,18 @@ def api_delete_key():
                             return jsonify({'success': True})
     
     return jsonify({'success': False, 'error': 'key not found'})
+
+@app.route('/css/<path:filename>')
+def css_static(filename):
+    return send_from_directory(os.path.join(os.path.dirname(__file__), 'miniapp/css'), filename)
+
+@app.route('/img/<path:filename>')
+def img_static(filename):
+    return send_from_directory(os.path.join(os.path.dirname(__file__), 'miniapp/img'), filename)
+
+@app.route('/script.js')
+def js_static():
+    return send_from_directory(os.path.join(os.path.dirname(__file__), 'miniapp'), 'script.js')
 
 def parse_user_id(init_data):
     # В реальном проекте нужно парсить и проверять подпись initData!

@@ -4,7 +4,7 @@ document.getElementById('stats-btn').onclick = showStats;
 document.getElementById('support-btn').onclick = showSupport;
 
 // API конфигурация
-const API_BASE = "http://178.250.191.242/api";
+const API_BASE = "https://r14-vpn.ru/api";
 
 // Функция для обновления активной кнопки навигации
 function updateActiveNav(activeBtnId) {
@@ -14,63 +14,119 @@ function updateActiveNav(activeBtnId) {
   document.getElementById(activeBtnId).classList.add('active');
 }
 
+// Функция для показа трафика или empty state
+function renderTrafficOrEmpty(keys) {
+  const main = document.getElementById('main-content');
+  if (keys && keys.length > 0) {
+    // Показываем трафик и список ключей
+    main.innerHTML = `
+      <div class="traffic__inner">
+        <div class="card traffic__card">
+          <div class="traffic__content">
+            <div class="traffic__header">
+              <div class="traffic__icon">📈</div>
+              <div class="traffic__info">
+                <span class="traffic__label">Использование трафика</span>
+                <div class="traffic__amount">
+                  <span class="used">15.2 ГБ</span>
+                  <span class="separator">/</span>
+                  <span class="limit">50 ГБ</span>
+                </div>
+                <div class="traffic__progress">
+                  <div class="progress__bar">
+                    <div class="progress__fill" style="width: 30%;"></div>
+                  </div>
+                  <span class="remaining">34.8 ГБ осталось</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2>Ваши ключи</h2>
+      <div id="keys-list">Загрузка...</div>
+      <button class="primary" id="get-key-btn">
+        <span>🔑 Получить новый ключ</span>
+      </button>
+    `;
+    // Отрисовываем список ключей
+    const keysList = document.getElementById('keys-list');
+    if (keys && keys.length > 0) {
+      keysList.innerHTML = keys.map(k => `
+        <div class="card key-card">
+          <div class="key-info">
+            <div class="key-name">${k.name}</div>
+            <div class="key-url">
+              <a href="${k.accessUrl}" target="_blank" onclick="copyToClipboard('${k.accessUrl}')">
+                ${k.accessUrl}
+              </a>
+            </div>
+            <div style="font-size: 11px; color: #999; margin-top: 8px;">
+              Истекает: ${k.expiresAt}
+            </div>
+            <div class="btn-wrap">
+              <button class="delete-btn" onclick="deleteKey('${k.name}')">Удалить</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    } else {
+      keysList.innerHTML = '<div class="empty-state">У вас пока нет ключей</div>';
+    }
+    // Кнопка создания ключа
+    const btn = document.getElementById('get-key-btn');
+    if (btn) btn.onclick = getKey;
+  } else {
+    // Показываем empty state
+    main.innerHTML = `
+      <div class="traffic__inner">
+        <div class="card traffic__card">
+          <div class="empty__state">
+            <div class="empty__state__image" style="font-size: 3rem;">📉</div>
+            <h4 class="empty__state__title">Нет данных по трафику</h4>
+            <p class="empty__state__text">Подключитесь к VPN, чтобы увидеть статистику.</p>
+            <button class="empty__state__btn">Создать VPN-ключ</button>
+          </div>
+        </div>
+      </div>
+    `;
+    const emptyBtn = document.querySelector('.empty__state__btn');
+    if (emptyBtn) emptyBtn.onclick = getKey;
+  }
+}
+
 // Функция для показа ключей
 function showKeys() {
   updateActiveNav('keys-btn');
   
-  document.getElementById('main-content').innerHTML = `
-    <h2>Ваши ключи</h2>
-    <div id="keys-list" class="loading">Загрузка...</div>
-    <button class="primary" id="get-key-btn">
-      <span>🔑 Получить новый ключ</span>
-    </button>
-  `;
-  
+  // Новый вызов: сначала показываем трафик/empty state
   fetch(`${API_BASE}/keys`)
     .then(r => r.json())
     .then(data => {
-      if (data.keys && data.keys.length > 0) {
-        document.getElementById('keys-list').innerHTML = data.keys.map(k => `
-          <div class="card key-card">
-            <div class="key-info">
-              <div class="key-name">${k.name}</div>
-              <div class="key-url">
-                <a href="${k.accessUrl}" target="_blank" onclick="copyToClipboard('${k.accessUrl}')">
-                  ${k.accessUrl}
-                </a>
-              </div>
-              <div style="font-size: 11px; color: #999; margin-top: 8px;">
-                Создан: ${k.created} | Истекает: ${k.expiresAt}
-              </div>
-            </div>
-            <button class="delete-btn" onclick="deleteKey('${k.name}')">
-              🗑️ Удалить
-            </button>
-          </div>
-        `).join('');
-      } else {
-        document.getElementById('keys-list').innerHTML = '<div class="empty-state">У вас пока нет ключей</div>';
-      }
+      renderTrafficOrEmpty(data.keys);
+      // Далее можно отрисовать список ключей ниже, если нужно
     })
     .catch(error => {
       console.error('Ошибка загрузки ключей:', error);
-      document.getElementById('keys-list').innerHTML = '<div class="empty-state">Ошибка загрузки ключей</div>';
+      renderTrafficOrEmpty([]);
     });
-  
-  document.getElementById('get-key-btn').onclick = getKey;
+  // Удаляю лишний вызов document.getElementById('get-key-btn').onclick = getKey;
 }
 
 // Функция для создания нового ключа
-function getKey() {
+function getKey(e) {
+  // Получаем кнопку, с которой вызвана функция
+  const btn = e?.target || document.getElementById('get-key-btn') || document.querySelector('.empty__state__btn');
+  if (!btn) return;
+
   const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
   const username = tgUser?.username || `user_${tgUser?.id || 1}`;
   const user_id = tgUser?.id || 1;
-  
-  const btn = document.getElementById('get-key-btn');
+
   const originalText = btn.innerHTML;
   btn.innerHTML = '<span>⏳ Создание...</span>';
   btn.disabled = true;
-  
+
   fetch(`${API_BASE}/get_key`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -80,7 +136,7 @@ function getKey() {
     .then(data => {
       if (data.key) {
         showNotification('Ключ успешно создан!', 'success');
-        showKeys();
+        showKeys(); // сразу обновляем список ключей
       } else {
         showNotification('Ошибка при создании ключа', 'error');
       }
@@ -243,9 +299,9 @@ function showNotification(message, type = 'info') {
 
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
-  // Показываем ключи по умолчанию
+  // По умолчанию показываем ключи и активируем вкладку 'Ключи'
   showKeys();
-  
+  updateActiveNav('keys-btn');
   // Добавляем обработчик для копирования ссылок по клику
   document.addEventListener('click', function(e) {
     if (e.target.tagName === 'A' && e.target.href.includes('ss://')) {

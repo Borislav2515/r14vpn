@@ -4,20 +4,46 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>R14-VPN</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/header.css">
+  <link rel="stylesheet" href="./css/trafficCard.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <header class="header">
-    <div class="header-content">
-      <h1 class="logo">R14-VPN</h1>
-      <div class="header-subtitle">Безопасное соединение</div>
-    </div>
+  <header class="header" role="banner">
+        <div class="container">
+            <div class="header__inner">
+              <div class="header__left">
+                  <a href="/" class="header__logo-link">
+                      <img src="./img/logoLight.png" alt="R14-VPN logo" class="header__logo-img" />
+                      <span class="header__logo-name">R14-VPN</span>
+                  </a>
+              </div>
+              <div class="header__right">
+                  <div class="header__controls">
+                  <button
+                      class="header__control header__control--lang"
+                      type="button"
+                      aria-label="Change language">
+                      <span style="background: url('./img/theme.svg') no-repeat center center; height: 28px; width: 28px;"></span>
+                    </button>
+
+                  <button
+                      class="header__control header__control--profile"
+                      type="button"
+                      aria-label="Open user menu"
+                  >
+                  <span style="background: url('./img/lang.svg') no-repeat center center; height: 28px; width: 28px;"></span>
+                  </button>
+                </div>
+            </div>
+            </div>
+        </div>
   </header>
-  
   <main id="main-content" class="main-content">
-    <!-- Динамический контент -->
+    <!-- Динамический контент: сюда будем подставлять трафик или empty state -->
   </main>
+  
   
   <nav class="bottom-menu">
     <button id="keys-btn" class="nav-btn active">
