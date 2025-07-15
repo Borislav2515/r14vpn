@@ -70,7 +70,6 @@ li {
 
 .key-info {
   flex: 1;
-  margin-right: 12px;
 }
 
 .key-name {
@@ -296,9 +295,6 @@ li {
 
 /* Responsive */
 @media (max-width: 480px) {
-  .main-content {
-    padding: 16px;
-  }
   
   .card {
     padding: 16px;
@@ -310,7 +306,6 @@ li {
   
   .key-info {
     margin-right: 0;
-    margin-bottom: 12px;
   }
   
   .delete-btn {

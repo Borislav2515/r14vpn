@@ -29,23 +29,36 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px;
+    padding: 10px;
     background: #f8f9fa;
     border-radius: 12px;
     border: 1px solid #e9ecef;
     transition: all 0.2s ease;
 }
-
-.status-indicator {
+.server-indicator {
+    position: relative;
+    padding-left: 20px;
+}
+.server-indicator::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 18%;
     display: inline-block;
     width: 10px;
     height: 10px;
     border-radius: 50%;
     margin-right: 8px;
     transition: background-color 0.3s ease;
-    background-color: green;
-    
+    background-color: green; 
 }
+
+.key-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .key-status  span {
     font-size: 12px;
     color: #28a745;
@@ -53,9 +66,13 @@
 }
 
 .key-server {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     font-size: 12px;
     color: #6c757d;
     font-family: monospace;
+    margin-bottom: 10px;
 }
 
 .key-expires {

@@ -38,6 +38,7 @@ function renderTrafficOrEmpty(keys) {
                   </div>
                   <span class="remaining">34.8 ГБ осталось</span>
                 </div>
+                <div class="traffic__btn-wrap"><button class="empty__state__btn">Создать VPN-ключ</button> </div>
               </div>
             </div>
           </div>
@@ -60,15 +61,12 @@ function renderTrafficOrEmpty(keys) {
           <div class="key-info">
             <div class="key-server">
               <span> 🇩🇪 ${k.name}</span>
+              <span>Осталось: ${k.daysLeft !== null && k.daysLeft >= 0 ? k.daysLeft + ' дн.' : '—'}</span>
             </div>
             <div class="key-status">
-              <div class="status-indicator status-connected"></div>
-              <span>Активен</span>
+              <span class="server-indicator">Активен</span>
+              <button class="key-btn-delete" onclick="deleteKey('${k.id}', '${k.name}')"> удалить </button>
             </div>
-          </div>
-          <div class="key-expires">
-            <span>Истекает: ${k.expiresAt}</span>
-            <button class="key-btn-delete" onclick="deleteKey('${k.id}')"> удалить </button>
           </div>
         </div>
       `).join('');
@@ -108,19 +106,21 @@ function renderTrafficOrEmpty(keys) {
 // Функция для показа ключей
 function showKeys() {
   updateActiveNav('keys-btn');
-  
-  // Новый вызов: сначала показываем трафик/empty state
-  fetch(`${API_BASE}/keys`)
+  const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+  const user_id = tgUser?.id || 1;
+  fetch(`${API_BASE}/keys`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id })
+  })
     .then(r => r.json())
     .then(data => {
       renderTrafficOrEmpty(data.keys);
-      // Далее можно отрисовать список ключей ниже, если нужно
     })
     .catch(error => {
       console.error('Ошибка загрузки ключей:', error);
       renderTrafficOrEmpty([]);
     });
-  // Удаляю лишний вызов document.getElementById('get-key-btn').onclick = getKey;
 }
 
 // Функция для создания нового ключа
@@ -128,12 +128,13 @@ function getKey() {
   const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
   const username = tgUser?.username || `user_${tgUser?.id || 1}`;
   const user_id = tgUser?.id || 1;
-  
   const btn = document.getElementById('get-key-btn');
-  const originalText = btn.innerHTML;
-  btn.innerHTML = '<span>⏳ Создание...</span>';
-  btn.disabled = true;
-  
+  let originalText;
+  if (btn) {
+    originalText = btn.innerHTML;
+    btn.innerHTML = '<span>⏳ Создание...</span>';
+    btn.disabled = true;
+  }
   fetch(`${API_BASE}/get_key`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -153,24 +154,24 @@ function getKey() {
       showNotification('Ошибка при создании ключа', 'error');
     })
     .finally(() => {
-      btn.innerHTML = originalText;
-      btn.disabled = false;
+      if (btn) {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
     });
 }
 
 // Функция для удаления ключа
-function deleteKey(keyName) {
+function deleteKey(keyId, keyName) {
   if (!confirm(`Вы уверены, что хотите удалить ключ "${keyName}"?`)) {
     return;
   }
-  
   const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
   const user_id = tgUser?.id || 1;
-  
   fetch(`${API_BASE}/delete_key`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ key_name: keyName, user_id })
+    body: JSON.stringify({ key_id: keyId, user_id })
   })
     .then(r => r.json())
     .then(data => {

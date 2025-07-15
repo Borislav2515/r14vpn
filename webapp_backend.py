@@ -61,10 +61,12 @@ def api_generate_key():
         return jsonify({'success': True})
     return jsonify({'success': False, 'error': 'api'})
 
-@app.route('/api/keys', methods=['GET'])
+@app.route('/api/keys', methods=['POST'])
 def api_keys():
-    # Для простоты: user_id=1 (можно доработать под авторизацию)
-    user_id = 1
+    data = request.get_json()
+    user_id = data.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'user_id required'}), 400
     keys = get_keys(user_id)
     result = []
     for server in OUTLINE_SERVERS:
@@ -74,20 +76,36 @@ def api_keys():
         for s_id, key_id, url, created, expires_at in keys:
             if s_id == server_id and key_id in real_keys_map:
                 used_bytes = real_keys_map[key_id].get('usedBytes', 0)
+                # daysLeft
+                days_left = None
+                if expires_at:
+                    try:
+                        dt = datetime.strptime(expires_at, "%Y-%m-%d %H:%M:%S")
+                        days_left = (dt - datetime.now()).days
+                    except Exception:
+                        days_left = None
                 result.append({
+                    'id': key_id,
                     'name': server['name'],
                     'accessUrl': url,
                     'created': created[:16],
                     'expiresAt': expires_at,
+                    'daysLeft': days_left,
                     'usedBytes': used_bytes
                 })
     return jsonify({'keys': result})
 
+@app.route('/api/keys', methods=['GET'])
+def api_keys_get():
+    return jsonify({'error': 'GET not supported, use POST with user_id'}), 405
+
 @app.route('/api/get_key', methods=['POST'])
 def api_get_key():
     data = request.get_json()
-    user_id = data.get('user_id', 1)
+    user_id = data.get('user_id')
     username = data.get('username', f'user_{user_id}')
+    if not user_id:
+        return jsonify({'error': 'user_id required'}), 400
     server = OUTLINE_SERVERS[0]
     res = create_access_key(server['api_url'], name=username)
     if res and 'id' in res and 'accessUrl' in res:
@@ -116,29 +134,25 @@ def api_stats():
 @app.route('/api/delete_key', methods=['POST'])
 def api_delete_key():
     data = request.get_json()
-    user_id = data.get('user_id', 1)
-    key_name = data.get('key_name')
-    
-    if not key_name:
-        return jsonify({'success': False, 'error': 'key_name required'})
-    
-    # Находим ключ по имени и удаляем его
+    user_id = data.get('user_id')
+    key_id = data.get('key_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'user_id required'})
+    if not key_id:
+        return jsonify({'success': False, 'error': 'key_id required'})
     keys = get_keys(user_id)
     for server in OUTLINE_SERVERS:
-        if server['name'] == key_name:
-            # Удаляем ключ из Outline
-            from outline_api import delete_access_key
-            real_keys = get_access_keys(server['api_url'])
-            if real_keys:
-                for key in real_keys:
-                    if key.get('name') == key_name or f'user_{user_id}' in key.get('name', ''):
-                        delete_result = delete_access_key(server['api_url'], key['id'])
-                        if delete_result:
-                            # Удаляем из базы данных
-                            from db import delete_key
-                            delete_key(user_id, server['id'], key['id'])
-                            return jsonify({'success': True})
-    
+        # ищем ключ по id
+        real_keys = get_access_keys(server['api_url'])
+        if real_keys:
+            for key in real_keys:
+                if key.get('id') == key_id:
+                    from outline_api import delete_access_key
+                    delete_result = delete_access_key(server['api_url'], key_id)
+                    if delete_result:
+                        from db import delete_key
+                        delete_key(user_id, server['id'], key_id)
+                        return jsonify({'success': True})
     return jsonify({'success': False, 'error': 'key not found'})
 
 @app.route('/css/<path:filename>')
